@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fly Way Logistics — Rastreamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#FF6A00;--or-d:#CC5400;--or-l:#FF8C38;--or-p:#FFF3EB;
+  --bk:#0D0D0D;--g9:#111;--g8:#1F1F1F;--g7:#2D2D2D;--g6:#555;--g5:#777;--g4:#999;
+  --g3:#CCC;--g2:#E8E8E8;--g1:#F7F7F7;--wh:#FFF;
+  --ok:#16A34A;--err:#DC2626;--warn:#D97706;--info:#2563EB;
+  --r:12px;--rt:18px;--sh:0 2px 16px rgba(0,0,0,.07);--sh2:0 8px 32px rgba(0,0,0,.12);
+  --font:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--g1);color:var(--bk);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* ── NAV ── */
+nav{background:var(--bk);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--g8)}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-mark{width:34px;height:34px;background:var(--or);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.logo-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px;text-transform:uppercase}
+.logo-text em{color:var(--or);font-style:normal}
+.nav-right{display:flex;align-items:center;gap:8px}
+.btn-ghost{background:transparent;color:var(--g4);border:1px solid var(--g7);border-radius:8px;padding:7px 15px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;transition:.2s;letter-spacing:.3px;text-transform:uppercase}
+.btn-ghost:hover{color:#fff;border-color:var(--g5)}
+.btn-or{background:var(--or);color:white;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;letter-spacing:.4px;text-transform:uppercase;transition:.2s}
+.btn-or:hover{background:var(--or-l)}
+.gs-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--g5);padding:5px 10px;border-radius:6px;border:1px solid var(--g7)}
+.gs-badge .dot{width:7px;height:7px;border-radius:50%}
+.dot-on{background:#4ADE80}.dot-off{background:var(--g5)}
+.btn-admin-ico{background:transparent;border:1px solid var(--g7);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;color:var(--g5);flex-shrink:0}
+.btn-admin-ico:hover{background:var(--g8);border-color:var(--g5);color:#fff}
+.btn-admin-ico svg{width:17px;height:17px}
+
+/* ── VIEWS ── */
+.view{display:none;min-height:calc(100vh - 62px)}
+.view.active{display:block}
+
+/* ── HERO ── */
+.hero{background:var(--bk);padding:88px 24px 72px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 500px at 50% 120%,rgba(255,106,0,.12) 0%,transparent 70%);pointer-events:none}
+.hero-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,106,0,.12);border:1px solid rgba(255,106,0,.25);color:var(--or-l);font-size:11px;font-weight:700;padding:6px 16px;border-radius:20px;margin-bottom:28px;letter-spacing:.8px;text-transform:uppercase}
+.blink{width:7px;height:7px;border-radius:50%;background:var(--or);display:inline-block;animation:bl 2s infinite}
+@keyframes bl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.hero h1{font-size:clamp(34px,6vw,64px);font-weight:900;color:#fff;line-height:1.02;margin-bottom:18px;letter-spacing:-2px}
+.hero h1 em{color:var(--or);font-style:normal}
+.hero-sub{color:var(--g5);font-size:15px;font-weight:400;max-width:420px;margin:0 auto 44px;line-height:1.7}
+.track-wrap{max-width:580px;margin:0 auto 18px}
+.track-box{background:#fff;border-radius:14px;padding:6px 6px 6px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 0 0 1px rgba(255,106,0,.35),0 24px 48px rgba(0,0,0,.4);transition:.3s}
+.track-box:focus-within{box-shadow:0 0 0 2px var(--or),0 24px 48px rgba(0,0,0,.4)}
+.track-box input{flex:1;border:none;outline:none;font-size:16px;font-family:var(--font);font-weight:600;background:transparent;color:var(--bk);min-width:0}
+.track-box input::placeholder{color:var(--g3);font-weight:400;font-size:15px}
+.btn-track{background:var(--or);color:white;border:none;border-radius:10px;padding:14px 26px;font-size:13px;font-weight:800;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:.2s;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0}
+.btn-track:hover{background:var(--or-l);transform:translateY(-1px)}
+.btn-track:active{transform:scale(.98)}
+.hero-hint{color:var(--g6);font-size:12px}
+.hero-hint code{color:var(--or-l);font-family:monospace;background:rgba(255,106,0,.1);padding:2px 7px;border-radius:4px;font-size:11px}
+
+/* ── NO SHEETS ALERT ── */
+.no-sheets-alert{background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.3);border-radius:10px;padding:12px 18px;margin:16px auto 0;max-width:580px;font-size:12px;color:var(--or-l);font-weight:600;display:none;align-items:center;gap:10px;text-align:left}
+.no-sheets-alert svg{width:16px;height:16px;stroke:var(--or-l);fill:none;flex-shrink:0}
+
+/* ── STATS ── */
+.stats{background:var(--g9);border-top:1px solid var(--g8)}
+.stats-inner{max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:24px 20px;text-align:center;border-right:1px solid var(--g8)}
+.stat:last-child{border-right:none}
+.stat-n{font-size:30px;font-weight:900;color:var(--or);letter-spacing:-1px}
+.stat-l{font-size:10px;color:var(--g5);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;font-weight:600}
+
+/* ── HOW ── */
+.section{max-width:900px;margin:0 auto;padding:64px 20px}
+.section-h{font-size:clamp(22px,4vw,32px);font-weight:900;text-align:center;letter-spacing:-1px;margin-bottom:8px}
+.section-sub{text-align:center;color:var(--g5);font-size:14px;margin-bottom:40px}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px}
+.how-card{background:#fff;border-radius:16px;padding:28px 22px;box-shadow:var(--sh);border:1px solid transparent;transition:.25s}
+.how-card:hover{border-color:var(--or-p);transform:translateY(-3px);box-shadow:var(--sh2)}
+.how-ico{font-size:30px;margin-bottom:14px}
+.how-title{font-size:14px;font-weight:800;margin-bottom:7px}
+.how-desc{font-size:13px;color:var(--g5);line-height:1.65}
+
+/* ── RESULT ── */
+.result-wrap{max-width:780px;margin:0 auto;padding:40px 20px}
+.back-btn{display:inline-flex;align-items:center;gap:7px;color:var(--g5);font-size:12px;cursor:pointer;background:none;border:none;font-family:var(--font);font-weight:700;transition:.2s;margin-bottom:24px;text-transform:uppercase;letter-spacing:.5px;padding:0}
+.back-btn:hover{color:var(--or)}
+.back-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5}
+.order-card{background:#fff;border-radius:var(--rt);padding:28px;margin-bottom:18px;box-shadow:var(--sh);border:1px solid var(--g2)}
+.order-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-bottom:22px;margin-bottom:22px;border-bottom:1px solid var(--g2)}
+.order-icon-wrap{display:flex;align-items:center;gap:14px}
+.order-ico{width:46px;height:46px;background:var(--or-p);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.order-ico svg{width:22px;height:22px;stroke:var(--or);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.order-id-txt{font-size:21px;font-weight:900;letter-spacing:-.5px}
+.order-cust{font-size:13px;color:var(--g5);margin-top:2px;font-weight:500}
+.status-pill{display:inline-flex;align-items:center;padding:7px 15px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.sp-proc{background:#FEF3C7;color:#92400E}.sp-coll{background:#E0F2FE;color:#075985}
+.sp-tran{background:#EDE9FE;color:#5B21B6}.sp-cust{background:#FEE2E2;color:#991B1B}
+.sp-arrv{background:#D1FAE5;color:#065F46}.sp-deli{background:#FFF7ED;color:#C2410C}.sp-done{background:#DCFCE7;color:#14532D}
+.order-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.meta-item label{font-size:10px;color:var(--g4);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:4px;font-weight:700}
+.meta-item span{font-size:14px;font-weight:600}
+.route-vis{background:var(--g1);border-radius:12px;padding:18px 24px;margin:20px 0;display:flex;align-items:center;gap:12px}
+.route-pt{text-align:center;min-width:90px}
+.route-flag{font-size:26px;margin-bottom:4px}
+.route-name{font-size:13px;font-weight:800}
+.route-city{font-size:11px;color:var(--g5);font-weight:500}
+.route-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.route-ln{width:100%;height:2px;background:linear-gradient(90deg,var(--or),var(--or-l));border-radius:2px;position:relative}
+.route-ln-plane{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.route-ln-plane svg{width:13px;height:13px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.route-eta{font-size:10px;color:var(--g5);font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.timeline-card{background:#fff;border-radius:var(--rt);padding:28px;box-shadow:var(--sh);border:1px solid var(--g2)}
+.sec-title{font-size:11px;font-weight:800;margin-bottom:22px;text-transform:uppercase;letter-spacing:.6px;color:var(--g5)}
+.steps-bar{display:flex;align-items:flex-start;margin-bottom:32px;overflow-x:auto;padding-bottom:4px}
+.step-it{display:flex;flex-direction:column;align-items:center;flex:1;min-width:68px;position:relative}
+.step-it:not(:last-child)::after{content:'';position:absolute;top:15px;left:calc(50% + 15px);right:calc(-50% + 15px);height:2px;background:var(--g2);z-index:0;transition:.3s}
+.step-it.done:not(:last-child)::after{background:var(--or)}
+.step-it.active:not(:last-child)::after{background:linear-gradient(90deg,var(--or),var(--g2))}
+.step-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;position:relative;z-index:1;flex-shrink:0;border:2px solid transparent}
+.step-dot.done{background:var(--or);border-color:var(--or)}
+.step-dot.active{background:var(--bk);border-color:var(--bk);animation:stepP 2s infinite}
+.step-dot.pending{background:#fff;border-color:var(--g2)}
+@keyframes stepP{0%,100%{box-shadow:0 0 0 4px rgba(0,0,0,.08)}50%{box-shadow:0 0 0 8px rgba(0,0,0,.04)}}
+.step-lbl{font-size:9px;text-align:center;margin-top:7px;color:var(--g4);font-weight:600;line-height:1.3;max-width:64px;text-transform:uppercase;letter-spacing:.3px}
+.step-lbl.done,.step-lbl.active{color:var(--or-d)}
+.step-lbl.active{color:var(--bk)}
+.tl-list{display:flex;flex-direction:column}
+.tl-it{display:flex;gap:14px;padding-bottom:22px;position:relative}
+.tl-it:not(:last-child)::before{content:'';position:absolute;left:15px;top:32px;bottom:0;width:2px;background:var(--g2)}
+.tl-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1;font-size:13px}
+.tl-dot.cur{background:var(--or);box-shadow:0 0 0 5px rgba(255,106,0,.12)}
+.tl-dot.old{background:var(--g1);border:2px solid var(--g2)}
+.tl-body{flex:1;padding-top:5px}
+.tl-stat{font-size:14px;font-weight:700}
+.tl-stat.cur{color:var(--or-d)}
+.tl-date{font-size:11px;color:var(--g4);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.tl-note{font-size:13px;color:var(--g6);margin-top:5px;line-height:1.55}
+.not-found{text-align:center;padding:60px 20px;max-width:380px;margin:0 auto}
+.nf-icon{font-size:56px;margin-bottom:16px}
+.nf-h{font-size:20px;font-weight:900;margin-bottom:8px;letter-spacing:-.5px}
+.nf-p{color:var(--g5);font-size:14px;line-height:1.6}
+
+/* ── LOADER ── */
+.loader-wrap{text-align:center;padding:96px 20px}
+.spinner{width:38px;height:38px;border:3px solid var(--g2);border-top-color:var(--or);border-radius:50%;animation:spin .65s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{color:var(--g5);font-size:13px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+
+/* ── LOGIN ── */
+.login-scene{min-height:calc(100vh - 62px);display:flex;align-items:center;justify-content:center;padding:24px;background:var(--g1)}
+.login-card{background:#fff;border-radius:20px;padding:44px 36px;box-shadow:var(--sh2);max-width:380px;width:100%;text-align:center;border:1px solid var(--g2)}
+.login-logo{width:54px;height:54px;background:var(--or);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.login-logo svg{width:26px;height:26px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.login-h{font-size:20px;font-weight:900;margin-bottom:5px;letter-spacing:-.5px}
+.login-sub{color:var(--g5);font-size:13px;margin-bottom:28px;line-height:1.6}
+.login-err{background:#FEE2E2;color:#991B1B;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px;font-weight:600;text-align:left}
+.inp{border:1.5px solid var(--g2);border-radius:10px;padding:13px 16px;font-size:14px;font-family:var(--font);font-weight:500;color:var(--bk);background:#fff;outline:none;transition:.2s;width:100%}
+.inp:focus{border-color:var(--or)}
+.fgrp{display:flex;flex-direction:column;gap:6px;text-align:left}
+.flbl{font-size:10px;font-weight:800;color:var(--g5);text-transform:uppercase;letter-spacing:.6px}
+.fhint{font-size:11px;color:var(--g4);margin-top:3px;font-weight:500}
+.btn-full{width:100%;margin-top:18px;padding:14px;font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border:none;border-radius:10px;background:var(--or);color:white;cursor:pointer;font-family:var(--font);transition:.2s}
+.btn-full:hover{background:var(--or-l)}
+
+/* ── ADMIN ── */
+.admin-scene{max-width:1020px;margin:0 auto;padding:36px 20px}
+.admin-hdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px}
+.admin-ttl{font-size:24px;font-weight:900;letter-spacing:-.8px}
+.admin-ttl em{color:var(--or);font-style:normal}
+.admin-sub{font-size:13px;color:var(--g5);margin-top:4px}
+.counters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:28px}
+.cnt-card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--sh);border:1px solid var(--g2)}
+.cnt-n{font-size:28px;font-weight:900;letter-spacing:-1px}
+.cnt-l{font-size:10px;color:var(--g5);text-transform:uppercase;letter-spacing:.6px;margin-top:4px;font-weight:700}
+.tabs{display:flex;gap:3px;background:var(--g2);border-radius:11px;padding:4px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;font-family:var(--font);color:var(--g5);transition:.2s;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;flex-shrink:0}
+.tab.active{background:#fff;color:var(--bk);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.tab:hover:not(.active){color:var(--bk)}
+.tbl-card{background:#fff;border-radius:var(--rt);box-shadow:var(--sh);overflow:hidden;border:1px solid var(--g2)}
+.tbl-top{padding:18px 22px;border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.srch{display:flex;align-items:center;gap:8px;background:var(--g1);border-radius:8px;padding:9px 14px;flex:1;max-width:280px;border:1.5px solid var(--g2);transition:.2s}
+.srch:focus-within{border-color:var(--or)}
+.srch svg{width:14px;height:14px;stroke:var(--g4);fill:none;flex-shrink:0}
+.srch input{border:none;background:transparent;outline:none;font-size:13px;font-family:var(--font);font-weight:500;color:var(--bk);width:100%}
+.srch input::placeholder{color:var(--g3)}
+.tbl-outer{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:580px}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--g4);font-weight:800;padding:12px 18px;text-align:left;background:var(--g1);border-bottom:1px solid var(--g2)}
+td{padding:14px 18px;border-bottom:1px solid var(--g2);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.tbl-id{font-family:monospace;font-weight:800;color:var(--or-d);font-size:12px;background:var(--or-p);padding:3px 8px;border-radius:5px}
+.tbl-acts{display:flex;gap:6px;flex-wrap:wrap}
+.btn-sm{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:var(--font);transition:.15s;text-transform:uppercase;letter-spacing:.3px}
+.btn-edit{background:var(--or-p);color:var(--or-d)}.btn-edit:hover{background:var(--or);color:white}
+.btn-del{background:#FEE2E2;color:#991B1B}.btn-del:hover{background:#DC2626;color:white}
+.empty-tbl{text-align:center;padding:44px;color:var(--g5);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.form-card{background:#fff;border-radius:var(--rt);padding:32px;box-shadow:var(--sh);max-width:620px;border:1px solid var(--g2)}
+.form-h{font-size:18px;font-weight:900;margin-bottom:4px;letter-spacing:-.5px}
+.form-sub{font-size:13px;color:var(--g5);margin-bottom:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:76px;line-height:1.5}
+.form-acts{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.btn-prim{background:var(--or);color:white;border:none;border-radius:10px;padding:13px 24px;font-size:12px;font-weight:800;font-family:var(--font);cursor:pointer;transition:.2s;letter-spacing:.5px;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px}
+.btn-prim:hover{background:var(--or-l);transform:translateY(-1px)}
+.btn-sec{background:transparent;color:var(--g5);border:1.5px solid var(--g2);border-radius:10px;padding:12px 20px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.4px}
+.btn-sec:hover{border-color:var(--or);color:var(--or)}
+
+/* ── SETTINGS ── */
+.sett-card{background:#fff;border-radius:var(--rt);padding:32px;box-shadow:var(--sh);border:1px solid var(--g2);max-width:820px}
+.sett-h{font-size:18px;font-weight:900;margin-bottom:4px;letter-spacing:-.5px}
+.sett-sub{font-size:13px;color:var(--g5);margin-bottom:24px;line-height:1.6}
+.mode-banner{border-radius:12px;padding:16px 20px;margin-bottom:28px;font-size:13px;font-weight:600;display:flex;align-items:flex-start;gap:12px;border:1px solid}
+.mode-local{background:#FEF3C7;color:#92400E;border-color:#FDE68A}
+.mode-sheets{background:#D1FAE5;color:#065F46;border-color:#6EE7B7}
+.mode-banner-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.mode-banner-body{flex:1}
+.mode-banner-title{font-size:14px;font-weight:800;margin-bottom:3px}
+.mode-banner-desc{font-size:12px;font-weight:500;opacity:.85;line-height:1.5}
+.share-box{background:var(--g1);border:1.5px solid var(--g2);border-radius:12px;padding:20px;margin-bottom:28px}
+.share-box-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--g6);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.share-box-title svg{width:15px;height:15px;stroke:var(--or);fill:none;flex-shrink:0}
+.share-url-row{display:flex;gap:8px}
+.share-url-inp{flex:1;font-family:monospace;font-size:12px;color:var(--or-d);background:#fff;border:1.5px solid var(--g2);border-radius:8px;padding:10px 14px;outline:none;cursor:text;word-break:break-all;min-width:0}
+.btn-copy-url{background:var(--or);color:white;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:800;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:.2s;letter-spacing:.3px;text-transform:uppercase;flex-shrink:0}
+.btn-copy-url:hover{background:var(--or-l)}
+.btn-copy-url.copied{background:var(--ok)}
+.share-hint{font-size:12px;color:var(--g5);margin-top:10px;line-height:1.6;font-weight:500}
+.share-hint strong{color:var(--bk)}
+.guide-steps{display:flex;flex-direction:column;gap:0;margin-bottom:28px}
+.g-step{display:flex;gap:16px;padding-bottom:24px;position:relative}
+.g-step:not(:last-child)::before{content:'';position:absolute;left:17px;top:36px;bottom:0;width:2px;background:var(--g2)}
+.g-num{width:36px;height:36px;border-radius:50%;background:var(--or);color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1}
+.g-body{flex:1;padding-top:6px}
+.g-title{font-size:14px;font-weight:800;margin-bottom:5px}
+.g-desc{font-size:13px;color:var(--g5);line-height:1.65;margin-bottom:10px}
+.code-block{background:var(--g9);color:#E8E8E8;border-radius:10px;padding:18px 20px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;white-space:pre;overflow-x:auto;position:relative;border:1px solid var(--g7)}
+.kw{color:#FF8C38}.str{color:#4ADE80}.cm{color:#666}.fn{color:#60A5FA}
+.code-copy{position:absolute;top:10px;right:10px;background:var(--g7);color:var(--g3);border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:.2s;letter-spacing:.3px;text-transform:uppercase}
+.code-copy:hover{background:var(--or);color:white}
+.code-copy.copied{background:var(--ok);color:white}
+.url-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
+.url-row .fgrp{flex:1;min-width:200px}
+.btn-test{background:var(--info);color:white;border:none;border-radius:10px;padding:13px 20px;font-size:12px;font-weight:800;font-family:var(--font);cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:.2s;white-space:nowrap}
+.btn-test:hover{background:#1D4ED8}
+.test-res{margin-top:10px;padding:11px 15px;border-radius:8px;font-size:13px;font-weight:600;display:none;border:1px solid}
+.test-ok{background:#D1FAE5;color:#065F46;border-color:#6EE7B7}
+.test-err{background:#FEE2E2;color:#991B1B;border-color:#FCA5A5}
+.sync-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.divider{border-top:1px solid var(--g2);margin:28px 0}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal-box{background:#fff;border-radius:20px;padding:32px;max-width:460px;width:100%;animation:mIn .22s ease;box-shadow:var(--sh2)}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(8px)}}
+.modal-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.modal-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.modal-ttl{font-size:17px;font-weight:900;letter-spacing:-.3px}
+.modal-msg{background:var(--g1);border-radius:10px;padding:16px;font-size:12px;line-height:1.8;color:var(--bk);margin-bottom:20px;border-left:3px solid var(--ok);white-space:pre-wrap;font-family:'Courier New',monospace}
+.modal-acts{display:flex;gap:10px;flex-wrap:wrap}
+.btn-wa{background:#25D366;color:white;border:none;border-radius:10px;padding:12px 18px;font-size:12px;font-weight:800;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:7px;transition:.2s;text-transform:uppercase;letter-spacing:.4px}
+.btn-wa:hover{background:#1DA851}
+.btn-cls{background:var(--g1);color:var(--g5);border:none;border-radius:10px;padding:12px 18px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.4px}
+.btn-cls:hover{background:var(--g2)}
+.modal-note{font-size:11px;color:var(--g4);margin-top:12px;line-height:1.5}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g9);color:#fff;padding:13px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:300;animation:tIn .28s ease;max-width:320px;display:flex;align-items:center;gap:9px;box-shadow:var(--sh2);letter-spacing:.2px}
+.t-ok{background:var(--ok)}.t-err{background:var(--err)}
+@keyframes tIn{from{opacity:0;transform:translateY(16px)}}
+.hidden{display:none!important}
+footer{background:var(--bk);color:var(--g6);text-align:center;padding:22px;font-size:11px;letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+footer em{color:var(--or);font-style:normal}
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}.form-full{grid-column:1}
+  .track-box{flex-direction:column;padding:14px 16px;gap:10px}.btn-track{width:100%;padding:14px}
+  .stats-inner{grid-template-columns:1fr}.stat{border-right:none;border-bottom:1px solid var(--g8)}.stat:last-child{border-bottom:none}
+  .order-meta{grid-template-columns:1fr 1fr}
+  .admin-scene{padding:20px 14px}
+  .url-row{flex-direction:column}
+  .share-url-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="goHome()">
+    <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+    <div class="logo-text">Fly Way <em>Logistics</em></div>
+  </div>
+  <div class="nav-right">
+    <button class="btn-admin-ico" onclick="openAdmin()" title="Painel Admin" aria-label="Aceder ao painel de administração">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ════ HOME ════ -->
+<div id="view-home" class="view active">
+  <div class="hero">
+    <div class="hero-pill"><span class="blink"></span>Portugal → Moçambique</div>
+    <h1>Rastreie a sua<br><em>encomenda</em></h1>
+    <p class="hero-sub">Acompanhe o estado da sua entrega em tempo real, de Portugal até Moçambique.</p>
+    <div class="track-wrap">
+      <div class="track-box">
+        <input type="text" id="track-input"
+          placeholder="Código de rastreamento (ex: FLY10001)"
+          maxlength="20"
+          oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter')doTrack()">
+        <button class="btn-track" onclick="doTrack()">Rastrear →</button>
+      </div>
+      <div class="no-sheets-alert" id="no-sheets-alert">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Este site ainda não está ligado à base de dados. Se é o admin, vá ao painel e configure o Google Sheets nas Definições.</span>
+      </div>
+    </div>
+    <p class="hero-hint" id="hero-hint-examples">Exemplos: <code>FLY10001</code> &nbsp;·&nbsp; <code>FLY10002</code> &nbsp;·&nbsp; <code>FLY10003</code></p>
+  </div>
+  <div class="stats">
+    <div class="stats-inner">
+      <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Encomendas</div></div>
+      <div class="stat"><div class="stat-n" id="s-transit">—</div><div class="stat-l">Em Trânsito</div></div>
+      <div class="stat"><div class="stat-n" id="s-done">—</div><div class="stat-l">Entregues</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2 class="section-h">Como funciona</h2>
+    <p class="section-sub">Simples, rápido e transparente — do envio à entrega</p>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-ico">📦</div><div class="how-title">Envio</div><div class="how-desc">A encomenda é recolhida em Portugal e registada com um código único de rastreamento.</div></div>
+      <div class="how-card"><div class="how-ico">✈️</div><div class="how-title">Trânsito</div><div class="how-desc">A encomenda viaja para Moçambique com atualizações de estado em tempo real.</div></div>
+      <div class="how-card"><div class="how-ico">🔔</div><div class="how-title">Notificação</div><div class="how-desc">Recebe uma mensagem no WhatsApp a cada mudança de estado da sua encomenda.</div></div>
+      <div class="how-card"><div class="how-ico">✅</div><div class="how-title">Entrega</div><div class="how-desc">A encomenda é entregue na morada indicada em Moçambique e confirmada no sistema.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ LOADING ════ -->
+<div id="view-loading" class="view">
+  <div class="loader-wrap"><div class="spinner"></div><div class="loader-txt">A pesquisar encomenda...</div></div>
+</div>
+
+<!-- ════ RESULT ════ -->
+<div id="view-result" class="view">
+  <div class="result-wrap">
+    <button class="back-btn" onclick="goHome()">
+      <svg viewBox="0 0 24 24" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Voltar
+    </button>
+    <div id="result-content"></div>
+  </div>
+</div>
+
+<!-- ════ LOGIN ════ -->
+<div id="view-login" class="view">
+  <div class="login-scene">
+    <div class="login-card">
+      <div class="login-logo"><svg viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
+      <div class="login-h">Painel Admin</div>
+      <div class="login-sub">Área reservada para gestores da<br>Fly Way Logistics</div>
+      <div class="login-err hidden" id="login-err">Senha incorreta. Tente novamente.</div>
+      <div class="fgrp">
+        <label class="flbl">Senha de acesso</label>
+        <input class="inp" type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-full" onclick="doLogin()">Entrar no Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ADMIN ════ -->
+<div id="view-admin" class="view">
+  <div class="admin-scene">
+    <div class="admin-hdr">
+      <div>
+        <div class="admin-ttl">Painel <em>Admin</em></div>
+        <div class="admin-sub" id="admin-sub-lbl">Fly Way Logistics — Gestão de Encomendas</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-sec hidden" id="btn-sync" onclick="syncSheets()">↻ Sincronizar</button>
+        <button class="btn-sec" onclick="doLogout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="counters" id="counters"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-panel="list" onclick="switchTab(this)">Encomendas</button>
+      <button class="tab" data-panel="new" onclick="switchTab(this)">Nova Encomenda</button>
+      <button class="tab hidden" data-panel="edit" id="tab-edit-btn" onclick="switchTab(this)">Editar</button>
+      <button class="tab" data-panel="settings" onclick="switchTab(this)">⚙ Definições</button>
+    </div>
+
+    <!-- LIST -->
+    <div id="panel-list">
+      <div class="tbl-card">
+        <div class="tbl-top">
+          <div class="srch">
+            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="srch-inp" placeholder="Pesquisar ID ou cliente..." oninput="renderTable()">
+          </div>
+          <span style="font-size:12px;color:var(--g5);font-weight:700" id="tbl-count"></span>
+        </div>
+        <div class="tbl-outer">
+          <table>
+            <thead><tr>
+              <th>Tracking ID</th><th>Cliente</th><th>Produto</th>
+              <th>Destino</th><th>Status</th><th>Atualizado</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbl-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW -->
+    <div id="panel-new" class="hidden">
+      <div class="form-card">
+        <div class="form-h">Nova Encomenda</div>
+        <div class="form-sub">O Tracking ID é gerado automaticamente.</div>
+        <div class="form-grid">
+          <div class="fgrp form-full">
+            <label class="flbl">Tracking ID (automático)</label>
+            <input class="inp" id="n-id" type="text" readonly style="background:var(--g1);color:var(--or-d);font-family:monospace;font-weight:800;font-size:16px;letter-spacing:1px">
+          </div>
+          <div class="fgrp"><label class="flbl">Nome do Cliente *</label><input class="inp" id="n-name" type="text" placeholder="João Manuel Silva"></div>
+          <div class="fgrp"><label class="flbl">Telefone WhatsApp</label><input class="inp" id="n-phone" type="tel" placeholder="+258 84 000 0000"></div>
+          <div class="fgrp form-full"><label class="flbl">Descrição do Produto *</label><input class="inp" id="n-product" type="text" placeholder="Smartphone Samsung Galaxy S24"></div>
+          <div class="fgrp"><label class="flbl">Origem</label><input class="inp" id="n-origin" type="text" value="Portugal"></div>
+          <div class="fgrp"><label class="flbl">Destino</label><input class="inp" id="n-dest" type="text" value="Moçambique"></div>
+          <div class="fgrp"><label class="flbl">Peso (kg)</label><input class="inp" id="n-weight" type="text" placeholder="2.5"></div>
+          <div class="fgrp"><label class="flbl">Status Inicial</label>
+            <select class="inp" id="n-status"><option>Em processamento</option><option>Recolhido</option><option>Em trânsito</option></select>
+          </div>
+          <div class="fgrp form-full"><label class="flbl">Nota Inicial</label><textarea class="inp" id="n-note" placeholder="Encomenda recebida na loja de Lisboa."></textarea></div>
+        </div>
+        <div class="form-acts">
+          <button class="btn-prim" onclick="createOrder()">Criar Encomenda</button>
+          <button class="btn-sec" onclick="switchTabByName('list')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT -->
+    <div id="panel-edit" class="hidden">
+      <div class="form-card">
+        <div class="form-h">Atualizar Encomenda</div>
+        <div class="form-sub" id="edit-id-lbl" style="color:var(--or-d);font-family:monospace;font-weight:800;font-size:15px;letter-spacing:1px"></div>
+        <div class="form-grid">
+          <div class="fgrp"><label class="flbl">Nome do Cliente</label><input class="inp" id="e-name" type="text"></div>
+          <div class="fgrp"><label class="flbl">Telefone WhatsApp</label><input class="inp" id="e-phone" type="tel"></div>
+          <div class="fgrp form-full"><label class="flbl">Produto</label><input class="inp" id="e-product" type="text"></div>
+          <div class="fgrp form-full"><label class="flbl">Novo Status</label>
+            <select class="inp" id="e-status">
+              <option>Em processamento</option><option>Recolhido</option><option>Em trânsito</option>
+              <option>Em alfândega</option><option>Chegou ao destino</option><option>Saiu para entrega</option><option>Entregue</option>
+            </select>
+          </div>
+          <div class="fgrp form-full"><label class="flbl">Nota da Atualização</label>
+            <textarea class="inp" id="e-note" placeholder="Descreva o que aconteceu (ex: Embarcado no voo TP286 Lisboa–Maputo)"></textarea>
+          </div>
+        </div>
+        <div class="form-acts">
+          <button class="btn-prim" onclick="updateOrder()">💬 Guardar e Notificar WhatsApp</button>
+          <button class="btn-sec" onclick="switchTabByName('list')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="panel-settings" class="hidden">
+      <div class="sett-card">
+        <div class="sett-h">⚙ Definições</div>
+        <div class="sett-sub">Configure o Google Sheets e copie o link a partilhar com os clientes — sem editar o HTML.</div>
+
+        <div class="mode-banner mode-local" id="mode-banner">
+          <div class="mode-banner-icon">📂</div>
+          <div class="mode-banner-body">
+            <div class="mode-banner-title">Modo local ativo</div>
+            <div class="mode-banner-desc">Os dados estão guardados apenas no seu browser. Configure o Google Sheets abaixo para que os clientes possam ver as suas encomendas.</div>
+          </div>
+        </div>
+
+        <div class="share-box" id="share-box" style="display:none">
+          <div class="share-box-title">
+            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            Link para partilhar com os clientes
+          </div>
+          <div class="share-url-row">
+            <input class="share-url-inp" id="share-url-display" type="text" readonly onclick="this.select()">
+            <button class="btn-copy-url" id="btn-copy-share" onclick="copyShareLink()">Copiar Link</button>
+          </div>
+          <div class="share-hint">
+            ⚠️ <strong>Importante:</strong> Envie este link aos seus clientes (WhatsApp, email, etc). Quando abrirem este link, conseguirão rastrear as suas encomendas automaticamente, porque o endereço já tem o código do Google Sheets incorporado.
+          </div>
+        </div>
+
+        <div class="guide-steps">
+          <div class="g-step">
+            <div class="g-num">1</div>
+            <div class="g-body">
+              <div class="g-title">Criar o Google Sheet</div>
+              <div class="g-desc">Aceda a <a href="https://sheets.google.com" target="_blank" style="color:var(--or);font-weight:700">sheets.google.com</a> e crie uma folha nova. O nome não importa — o script cria a aba <strong>Encomendas</strong> automaticamente.</div>
+            </div>
+          </div>
+          <div class="g-step">
+            <div class="g-num">2</div>
+            <div class="g-body">
+              <div class="g-title">Abrir Apps Script e colar o código</div>
+              <div class="g-desc">No Google Sheet vá a <strong>Extensões → Apps Script</strong>. Apague tudo e cole o código do ficheiro <code>appsscript.gs</code>. Clique em <strong>Guardar (Ctrl+S)</strong>.</div>
+            </div>
+          </div>
+          <div class="g-step">
+            <div class="g-num">3</div>
+            <div class="g-body">
+              <div class="g-title">Publicar como Web App</div>
+              <div class="g-desc">No editor Apps Script clique em <strong>Implementar → Nova implementação</strong>. Selecione tipo <strong>"Aplicação Web"</strong>. Configure:</div>
+              <div style="background:var(--g1);border-radius:10px;padding:14px 18px;margin-bottom:10px;font-size:13px;line-height:1.8;border-left:3px solid var(--or)">
+                ▸ <strong>Executar como:</strong> Eu mesmo<br>
+                ▸ <strong>Quem tem acesso:</strong> <strong style="color:var(--err)">Qualquer pessoa</strong> ← obrigatório!<br>
+                ▸ Clique <strong>Implementar</strong> → autorize → copie o URL gerado
+              </div>
+            </div>
+          </div>
+          <div class="g-step">
+            <div class="g-num">4</div>
+            <div class="g-body">
+              <div class="g-title">Colar o URL aqui e ativar</div>
+              <div class="g-desc">Cole o URL do Apps Script abaixo, teste a ligação e clique em <strong>Guardar e Ativar</strong>. Depois copie o <strong>Link de Partilha</strong> e envie aos clientes.</div>
+              <div class="url-row">
+                <div class="fgrp">
+                  <label class="flbl">URL do Apps Script Web App</label>
+                  <input class="inp" type="url" id="gs-url-inp" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+                </div>
+                <button class="btn-test" onclick="testUrl()">Testar</button>
+              </div>
+              <div class="test-res" id="test-res"></div>
+              <div class="sync-row">
+                <button class="btn-prim" onclick="saveGsUrl()">✓ Guardar e Ativar</button>
+                <button class="btn-sec" onclick="disableSheets()">✕ Desativar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="g-title" style="font-size:14px;font-weight:800;margin-bottom:12px">🔐 Alterar Senha de Acesso</div>
+        <div class="form-grid" style="max-width:480px">
+          <div class="fgrp"><label class="flbl">Nova Senha</label><input class="inp" type="password" id="new-pass" placeholder="mínimo 6 caracteres"></div>
+          <div class="fgrp"><label class="flbl">Confirmar</label><input class="inp" type="password" id="conf-pass" placeholder="repita a senha"></div>
+        </div>
+        <button class="btn-prim" style="margin-top:14px" onclick="changePass()">Alterar Senha</button>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal WhatsApp -->
+<div class="modal-bg hidden" id="modal-wa">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-ico" style="background:#D1FAE5">💬</div>
+      <div class="modal-ttl">Notificação WhatsApp</div>
+    </div>
+    <p style="font-size:12px;color:var(--g5);margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Mensagem para o cliente:</p>
+    <div class="modal-msg" id="wa-msg-txt"></div>
+    <div class="modal-acts">
+      <button class="btn-wa" onclick="openWA()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.998-1.405C8.42 21.525 10.183 22 12 22c5.523 0 10-4.477 10-10S17.522 2 11.999 2zm.001 18.333c-1.659 0-3.206-.489-4.504-1.33l-.323-.192-3.048.856.836-3.073-.21-.33C3.489 14.987 3 13.543 3 12 3 7.03 7.029 3 12 3s9 4.029 9 9-4.029 9.333-9 9.333z"/></svg>
+        Abrir WhatsApp
+      </button>
+      <button class="btn-cls" onclick="closeModal('modal-wa')">Fechar</button>
+    </div>
+    <p class="modal-note">Para envio automático sem cliques, integre com Twilio ou WhatsApp Business API.</p>
+  </div>
+</div>
+
+<!-- Modal Delete -->
+<div class="modal-bg hidden" id="modal-del">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-ico" style="background:#FEE2E2">🗑️</div>
+      <div class="modal-ttl">Eliminar Encomenda</div>
+    </div>
+    <p style="font-size:14px;color:var(--g5);margin-bottom:24px;line-height:1.6">Tem a certeza? Esta ação não pode ser desfeita.</p>
+    <div class="modal-acts">
+      <button class="btn-prim" style="background:var(--err)" onclick="confirmDelete()">Eliminar definitivamente</button>
+      <button class="btn-cls" onclick="closeModal('modal-del')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2025 <em>Fly Way Logistics</em> &nbsp;·&nbsp; Portugal → Moçambique &nbsp;·&nbsp; Todos os direitos reservados</footer>
+
+<!-- Lógica da aplicação (ficheiro separado) -->
+<script src="app.js"></script>
+</body>
+</html>
