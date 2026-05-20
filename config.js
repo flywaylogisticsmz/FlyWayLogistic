@@ -44,7 +44,7 @@ const FLY_CONFIG = {
     //  3. Faça upload/push para o GitHub
     //  4. O site fica imediatamente funcional para todos
     // ════════════════════════════════════════════════════════════════════════
-    urlFixo: 'https://script.google.com/macros/s/AKfycbwrv2XqePc2PwEs_PU0UQ7me_uni1lgHOw-htlQKcqYkncGBeeWLNU7WnthQFHttHA7/exec',
+    urlFixo: 'https://script.google.com/macros/s/AKfycbyT9zyV9TyDmAS2zlIa08I1FIMGCemXn_gE9Oejg-q2WSc7mcYT_deLMAVjsmzSjgYM/exec',
     // Exemplo:
     // urlFixo: 'https://script.google.com/macros/s/AKfycbXXXXXXXXXXXXXXXXXX/exec',
   },
